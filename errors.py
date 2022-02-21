@@ -1,0 +1,2 @@
+class BrokenTimerError(BaseException):
+    pass
