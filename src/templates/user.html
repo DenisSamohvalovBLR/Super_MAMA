@@ -2,9 +2,12 @@
 
 {% block content %}
 {{ super() }}
+{% for cat, msg in get_flashed_messages(True) %}
+<div class="flash {{cat}}">{{msg}}</div>
+{% endfor %}
 <form action="user" method="post" class="form-contact">
     <p><label>Name: </label> <input type="text" name="username" value="" requied/>
     <p><label>Email: </label> <input type="text" name="email" value="" requied/>
-<p><input type="submit" value="Send" />
+    <p><input type="submit" value="Send"/>
 </form>
 {% endblock %}}

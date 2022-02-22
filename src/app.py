@@ -1,6 +1,7 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, flash
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '1111'
 
 menu = [{"name": "Registration", "url": "user"},
         {"name": "Food", "url": "food"},
@@ -8,7 +9,7 @@ menu = [{"name": "Registration", "url": "user"},
         {"name": "Parse", "url": "parse"}]
 
 
-@app.route("/base")
+@app.route("/")
 def base():
     print(url_for('base'))
     return render_template("base.html", title="Super MAMA", menu=menu)
@@ -37,7 +38,10 @@ def profile(username, path):
 @app.route("/user", methods=["POST", "GET"])
 def user():
     if request.method == "POST":
-        print(request.form)
+        if len(request.form['username']) > 2:
+            flash("Message sent", category='success')
+        else:
+            flash("Send error", category='error')
 
     return render_template("user.html", title="Registration", menu=menu)
 

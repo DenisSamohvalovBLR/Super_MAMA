@@ -5,6 +5,7 @@ html, body {
     height: 100%;
     width: 100%;
 }
+
 a {
     color: #0059b2;
     text-decoration: none;
@@ -13,12 +14,14 @@ a:hover {
     color: #CC0000;
     text-decoration: underline;
 }
+
 .clear {clear: both;}
 
 ul.mainmenu {
     list-style: none;
     background: #3F4137;
     height: 60px;
+    margin: 0;
     padding: 0;
     color: #fdc073;
     font-size: 20px;
@@ -30,7 +33,7 @@ ul.mainmenu li {
 }
 ul.mainmenu li.last {float: right;}
 
-ulul.mainmenu li.a {
+ul.mainmenu li a {
     color: #fdc073;
     text-decoration: none;
 }
@@ -44,7 +47,7 @@ div.content {
 
 .form-contact label {
     display: inline-block;
-    min-widht: 80px;
+    min-width: 80px;
 }
 .form-contact p {margin: 10px 0 10px 0;}
 .form-contact input[type=submit], textarea {
@@ -52,6 +55,11 @@ div.content {
 }
 
 .flash {padding: 10px;}
-.flash.succes {
+.flash.success {
     border: 1px solid #21DB56;
+    background: #AEFFC5;
+}
+.flash.error {
+    border: 1px solid #FF4343;
+    background #FF9C9C;
 }
