@@ -30,7 +30,7 @@ def registration():
             db.session.add(u)
             db.session.flush()
 
-            p = Profile(name=request.form['name'], user_id=u.id)
+            p = Profile(name=request.form['username'], user_id=u.id)
             db.session.add(p)
             db.session.commit()
         except:
