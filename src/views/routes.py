@@ -1,9 +1,10 @@
-from flask import render_template, request, session, redirect, url_for, abort
+from flask import render_template, request, session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
+
 from app import app, db
 from models.db_models import User, Profile
 
-menu = [{"name": "Registration", "url": "registration"}]
+menu = [{"name": "Authorization", "url": "authorization"}]
 
         # {"name": "Authorization", "url": "authorization"},
 
@@ -13,12 +14,21 @@ blocks = [{"name": "Food", "url": "food"},
           {"name": "Parse", "url": "parse"}]
 
 
-@app.route("/profile/<username>")
-def profile(username):
-    if 'userLogged' not in session or session['userLogged'] != username:
-        abort(401)
+# @app.route('/logout')
 
-    return f"Профиль пользователя: {username}"
+# def logout():
+#     logout_user()
+#     flash("Вы вышли из аккаунта", "success")
+#     return redirect(url_for('login'))
+#
+#
+# @app.route("/profile")
+
+# def profile(username):
+#     # if 'userLogged' not in session or session['userLogged'] != username:
+#     #     abort(401)
+#     #     return f"Профиль пользователя: {username}"
+#     return f"""<p><a href="{url_for('logout')}">Выйти из профиля</a><p>user info: {current_user.get_id()}"""
 
 
 @app.route("/registration", methods=["POST", "GET"])
@@ -36,20 +46,21 @@ def registration():
         except:
             db.session.rollback()
             print("Ошибка добавления в БД")
-    # if 'userLogged' in session:
-    #     return redirect(url_for('blocks_menu', username=session['userLogged']))
-    # elif request.method == 'POST' \
-    #         and request.form['username'] == "dsam" \
-    #         and request.form['email'] == "denis.samohvalov.1987.blr@gmail.com" \
-    #         and request.form['psw'] == "1805":
-    #     session['userLogged'] = request.form['username']
-    #     return redirect(url_for('blocks_menu', username=session['userLogged']))
+
+    if 'userLogged' in session:
+        return redirect(url_for('blocks_menu', username=session['userLogged']))
+    elif request.method == 'POST' \
+            and request.form['username'] == "dsam" \
+            and request.form['email'] == "denis.samohvalov.1987.blr@gmail.com" \
+            and request.form['password_hash'] == "1805":
+        session['userLogged'] = request.form['username']
+        return redirect(url_for('blocks_menu', username=session['userLogged']))
 
     # if len(request.form['username']) > 2:
     #     flash("Message sent", category='success')
     # else:
     #     flash("Send error", category='error')
-
+    #
     # if request.method == "POST":
     #     print(request.form)
 
@@ -61,9 +72,17 @@ def registration():
 #     return render_template("authentication.html", title="Authentication", menu=menu)
 #
 #
-# @app.route("/authorization", methods=["POST", "GET"])
-# def authorization():
-#     return render_template("authorization.html", title="Authorization", menu=menu)
+@app.route("/authorization", methods=["POST", "GET"])
+def authorization():
+    # if request.method == "POST":
+    #     user = dbase.getUserByEmail(request.form["email"])
+    #     if user and check_password_hash(user["password_hash"], request.form["password_hash"]):
+    #         userLogin = UserLogin().create(user)
+    #         return redirect(url_for("registration"))
+    #
+    #     flash("Неверная пара логин/пароль", "error")
+
+    return render_template("authorization.html", title="Authorization", menu=menu)
 
 
 @app.errorhandler(404)

@@ -1,3 +1,4 @@
+import datetime
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -12,3 +13,4 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     FLASK_APP = os.environ.get('FLASK_APP')
     FLASK_ENV = os.environ.get('FLASK_ENV')
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(seconds=10)

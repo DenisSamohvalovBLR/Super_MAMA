@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link type="text/css" href="{{url_for('static', filename='css/styles.css')}}" rel="stylesheet"/>
-    <title>{{title}}</title>
-</head>
-<body>
-<ul class="mainmenu">
-    <li><a href="{{ url_for('base') }}">Home page</a></li>
-    <li><a href="{{ url_for('register') }}">Registration</a></li>
-</ul>
+{% extends 'base.html' %}
 
-<div class="content">
-    {% block content %}
-    {% endblock -%}
-</div>
-</body>
-</html>
+{% block content %}
+{{ super() }}
+{% for cat, msg in get_flashed_messages(True) %}
+<div class="flash {{cat}}">{{msg}}</div>
+{% endfor %}
+<form action="authorization" method="post" class="form-contact">
+    <p><label>Email: </label> <input type="text" name="email" value="" requied/>
+    <p><label>Password: </label> <input type="password" name="password_hash" value="" requied/>
+    <p><input type="checkbox" name="Remember me"/>
+    <p><input type="submit" value="Enter"/>
+    <hr align=left width="300px">
+    <p><a href="{{url_for("registration")}}">Registration</p>
+</form>
+{% endblock %}}
