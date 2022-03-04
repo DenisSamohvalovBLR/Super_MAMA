@@ -1,93 +1,76 @@
-from flask import render_template, request, session, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
+from flask import render_template, request, url_for, redirect, flash
+from flask_login import logout_user, login_required, current_user, login_user
+from werkzeug.security import check_password_hash
 
-from app import app, db
-from models.db_models import User, Profile
+from app import app, login_manager
+from controller.UserController import UserController
+from models.db_models import User, UserLogin
 
 menu = [{"name": "Authorization", "url": "authorization"}]
-
-        # {"name": "Authorization", "url": "authorization"},
-
-
 blocks = [{"name": "Food", "url": "food"},
           {"name": "Sleep", "url": "sleep"},
           {"name": "Parse", "url": "parse"}]
 
 
-# @app.route('/logout')
-
-# def logout():
-#     logout_user()
-#     flash("Вы вышли из аккаунта", "success")
-#     return redirect(url_for('login'))
-#
-#
-# @app.route("/profile")
-
-# def profile(username):
-#     # if 'userLogged' not in session or session['userLogged'] != username:
-#     #     abort(401)
-#     #     return f"Профиль пользователя: {username}"
-#     return f"""<p><a href="{url_for('logout')}">Выйти из профиля</a><p>user info: {current_user.get_id()}"""
+@login_manager.user_loader
+def load_user(user_id):
+    print('load_user')
+    return User.query.filter_by(id=user_id).first()
 
 
-@app.route("/registration", methods=["POST", "GET"])
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You are logged out', 'success')
+    return redirect(url_for('authorization'))
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    return f'''<p><a href='{url_for('logout')}'>Sign out</a><p>user info: {current_user.get_id()}'''
+
+
+@app.route('/registration', methods=['POST', 'GET'])
 def registration():
-    if request.method == "POST":
-        try:
-            hash = generate_password_hash(request.form['password_hash'])
-            u = User(email=request.form['email'], password_hash=hash)
-            db.session.add(u)
-            db.session.flush()
+    if request.method == 'POST':
+        return UserController.add_user()
+    return render_template('registration.html', title='Registration')
 
-            p = Profile(name=request.form['username'], user_id=u.id)
-            db.session.add(p)
-            db.session.commit()
-        except:
-            db.session.rollback()
-            print("Ошибка добавления в БД")
-
-    if 'userLogged' in session:
-        return redirect(url_for('blocks_menu', username=session['userLogged']))
-    elif request.method == 'POST' \
-            and request.form['username'] == "dsam" \
-            and request.form['email'] == "denis.samohvalov.1987.blr@gmail.com" \
-            and request.form['password_hash'] == "1805":
-        session['userLogged'] = request.form['username']
-        return redirect(url_for('blocks_menu', username=session['userLogged']))
-
-    # if len(request.form['username']) > 2:
-    #     flash("Message sent", category='success')
+    # flash('You have successfully registered', 'success')
+    #     res = db.add_user(request.form['username'], request.form['email'], pass_hash)
+    #     if res:
+    #         flash('You have successfully registered', 'success')
+    #         return redirect(url_for('authorization'))
     # else:
-    #     flash("Send error", category='error')
-    #
-    # if request.method == "POST":
-    #     print(request.form)
-
-    return render_template("registration.html", title="Registration", blocks=blocks)
+    #     flash('Invalid fields', 'error')
+    #     session['userLogged'] = request.form['username']
+    #     if 'userLogged' in session:
+    #         return redirect(url_for('blocks_menu', username=session['userLogged']))
 
 
-# @app.route("/authentication", methods=["POST", "GET"])
-# def authentication():
-#     return render_template("authentication.html", title="Authentication", menu=menu)
-#
-#
-@app.route("/authorization", methods=["POST", "GET"])
+@app.route('/authorization', methods=['POST', 'GET'])
 def authorization():
-    # if request.method == "POST":
-    #     user = dbase.getUserByEmail(request.form["email"])
-    #     if user and check_password_hash(user["password_hash"], request.form["password_hash"]):
-    #         userLogin = UserLogin().create(user)
-    #         return redirect(url_for("registration"))
-    #
-    #     flash("Неверная пара логин/пароль", "error")
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
 
-    return render_template("authorization.html", title="Authorization", menu=menu)
+    if request.method == 'POST':
+        user = UserController.get_user_by_email(request.form['email'])
+        if user and check_password_hash(user.password_hash, request.form['password_hash']):
+            user_login = UserLogin().create(user)
+            rm = True if request.form.get('remain me') else False
+            login_user(user_login, remember=rm)
+            return redirect(request.args.get("next") or url_for("profile"))
+
+        flash('Invalid username/password', 'error')
+
+    return render_template('authorization.html', title='Authorization', menu=menu)
 
 
 @app.errorhandler(404)
-def pageNotFound(error):
-    return render_template('page404.html', title='Страница не найдена', menu=menu), 404
+def page_not_found(error):
+    return render_template('page404.html', title='Page not found', menu=menu), 404
 
 
 @app.route("/")
@@ -96,21 +79,25 @@ def base():
 
 
 @app.route("/blocks_menu")
+@login_required
 def blocks_menu():
     return render_template("blocks_menu.html", title="Super MAMA", blocks=blocks)
 
 
 @app.route("/food")
+@login_required
 def food():
     return render_template("food.html")
 
 
 @app.route("/sleep")
+@login_required
 def sleep():
     return render_template("sleep.html")
 
 
 @app.route("/parse")
+@login_required
 def parse():
     return render_template("parse.html")
 
