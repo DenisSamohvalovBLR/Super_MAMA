@@ -38,17 +38,6 @@ def registration():
         return UserController.add_user()
     return render_template('registration.html', title='Registration')
 
-    # flash('You have successfully registered', 'success')
-    #     res = db.add_user(request.form['username'], request.form['email'], pass_hash)
-    #     if res:
-    #         flash('You have successfully registered', 'success')
-    #         return redirect(url_for('authorization'))
-    # else:
-    #     flash('Invalid fields', 'error')
-    #     session['userLogged'] = request.form['username']
-    #     if 'userLogged' in session:
-    #         return redirect(url_for('blocks_menu', username=session['userLogged']))
-
 
 @app.route('/authorization', methods=['POST', 'GET'])
 def authorization():
